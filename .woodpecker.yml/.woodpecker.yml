@@ -1,0 +1,29 @@
+when:
+  - event: manual
+
+steps:
+  - name: test-and-package
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/maven:3.9.9-eclipse-temurin-17
+    commands:
+      - mvn -f complete/pom.xml -B clean package
+      - output_dir="/root/Packages/gs-rest-service/${CI_COMMIT_SHA}"
+      - mkdir -p "${output_dir}"
+      - artifact="$(find complete/target -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-plain.jar' | head -n 1)"
+      - test -n "${artifact}"
+      - cp "${artifact}" "${output_dir}/application.jar"
+      - sha256sum "${output_dir}/application.jar" > "${output_dir}/application.jar.sha256"
+when:
+  - event: manual
+
+steps:
+  - name: test-and-package
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/maven:3.9.9-eclipse-temurin-17
+    commands:
+      - mvn -f complete/pom.xml -B clean package
+      - output_dir="/root/Packages/gs-rest-service/${CI_COMMIT_SHA}"
+      - mkdir -p "${output_dir}"
+      - artifact="$(find complete/target -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-plain.jar' | head -n 1)"
+      - test -n "${artifact}"
+      - cp "${artifact}" "${output_dir}/application.jar"
+      - sha256sum "${output_dir}/application.jar" > "${output_dir}/application.jar.sha256"
+      - printf '{"app":"gs-rest-service","commit":"%s","artifact":"application.jar"}' "${CI_COMMIT_SHA}" > "${output_dir}/artifact-manifest.json"
